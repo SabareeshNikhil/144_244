@@ -25,8 +25,8 @@ num_episodes=2000
 epsilon=1.0
 epsilon_min=0.05
 epsilon_decay=0.99
-scores = []
-scores_average_window = 100      
+scores_history = []
+scores_average_window = 10      
 solved_score = 14 
 
 episodes_per_download = 5   
@@ -108,12 +108,15 @@ for i_episode in range(1, num_episodes+1):
         if all(dones):
             break
 
-    print ("Scores", scores)
+    avg_score = sum(scores)/num_agents
+    print ("Scores:", scores, sum(scores)/num_agents)
+    scores_history.append(avg_score)
+    print("Running average:", sum(scores_history[-scores_average_window:])/scores_average_window)
 
     # # Add episode score to Scores and...
     # # Calculate mean score over last 100 episodes 
     # # Mean score is calculated over current episodes until i_episode > 100
-    # scores.append(score)
+    
     # average_score = np.mean(scores[i_episode-min(i_episode,scores_average_window):i_episode+1])
 
     # # Decrease epsilon for epsilon-greedy policy by decay rate
