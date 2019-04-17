@@ -6,7 +6,6 @@ import time
 from dqn_agent import Agent
 from model import QNetwork
 
-
 # Determine if CPU or GPU computation should be used
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -55,6 +54,10 @@ class Agents():
             a = self.agents[i].download_global_net(global_net)
 
     def get_average_network(self):
+        # zero average net
+        for average_param in self.last_average_net.parameters():
+            average_param.data.copy_(average_param.data * 0)
+
         # get sum of params of all agent networks
         for i in range(self.num_agents):
             net_i = self.agents[i].network
