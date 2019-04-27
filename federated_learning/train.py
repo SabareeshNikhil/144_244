@@ -21,7 +21,7 @@ def convert_action(a):
     
     return converted_action
 
-num_episodes=2000
+num_episodes=10
 epsilon=1.0
 epsilon_min=0.05
 epsilon_decay=0.99
@@ -64,7 +64,7 @@ agent_nets.download_global_net(global_net.network)
 # loop from num_episodes
 for i_episode in range(1, num_episodes+1):
     # download global network
-    if i_episode % episodes_per_download == 0:
+    if i_episode % episodes_per_download == 1:
         print ("UPLOADING AGENT NETWORKS")
         average_net = agent_nets.get_average_network()
         global_net.receive_upload(average_net)
@@ -109,9 +109,9 @@ for i_episode in range(1, num_episodes+1):
             break
 
     avg_score = sum(scores)/num_agents
-    print ("Scores:", scores, sum(scores)/num_agents)
+    print ("Scores:", scores, "Average Scores:",sum(scores)/num_agents)
     scores_history.append(avg_score)
-    print("Running average:", sum(scores_history[-scores_average_window:])/scores_average_window)
+    print("Episode",i_episode,"Running average:", sum(scores_history[-scores_average_window:])/scores_average_window)
 
     # # Add episode score to Scores and...
     # # Calculate mean score over last 100 episodes 
@@ -135,15 +135,15 @@ for i_episode in range(1, num_episodes+1):
     # if average_score >= solved_score:
     #     print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode, average_score))
 
-    #     # Save trained neural network weights
-         timestr = time.strftime("%Y%m%d-%H%M%S")
-    #     nn_filename = "dqnAgent_Trained_Model_" + timestr + ".pth"
-    #     torch.save(agent.network.state_dict(), nn_filename)
+#     # Save trained neural network weights
+timestr = time.strftime("%Y%m%d-%H%M%S")
+#     nn_filename = "dqnAgent_Trained_Model_" + timestr + ".pth"
+#     torch.save(agent.network.state_dict(), nn_filename)
 
-        # Save the recorded Scores data
-         scores_filename = "dqnAgent_scores_" + timestr + ".csv"
-         np.savetxt(scores_filename, scores_history, delimiter=",")
-    #     break
+# Save the recorded Scores data
+scores_filename = "dqnAgent_scores_" + timestr + ".csv"
+np.savetxt(scores_filename, scores_history, delimiter=",")
+
 
 
 env.close()
