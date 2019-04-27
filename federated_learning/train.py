@@ -136,13 +136,13 @@ for i_episode in range(1, num_episodes+1):
     #     print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode, average_score))
 
     #     # Save trained neural network weights
-    #     timestr = time.strftime("%Y%m%d-%H%M%S")
+         timestr = time.strftime("%Y%m%d-%H%M%S")
     #     nn_filename = "dqnAgent_Trained_Model_" + timestr + ".pth"
     #     torch.save(agent.network.state_dict(), nn_filename)
 
-    #     # Save the recorded Scores data
-    #     scores_filename = "dqnAgent_scores_" + timestr + ".csv"
-    #     np.savetxt(scores_filename, scores, delimiter=",")
+        # Save the recorded Scores data
+         scores_filename = "dqnAgent_scores_" + timestr + ".csv"
+         np.savetxt(scores_filename, scores_history, delimiter=",")
     #     break
 
 
