@@ -21,7 +21,7 @@ def convert_action(a):
     
     return converted_action
 
-num_episodes=10
+num_episodes=6
 epsilon=1.0
 epsilon_min=0.05
 epsilon_decay=0.99
@@ -29,7 +29,7 @@ scores_history = []
 scores_average_window = 10      
 solved_score = 14 
 
-episodes_per_download = 5   
+episodes_per_download = 5
 
 # env = UnityEnvironment(file_name="Banana.app")
 env = UnityEnvironment(file_name=None)
@@ -137,8 +137,8 @@ for i_episode in range(1, num_episodes+1):
 
 #     # Save trained neural network weights
 timestr = time.strftime("%Y%m%d-%H%M%S")
-#     nn_filename = "dqnAgent_Trained_Model_" + timestr + ".pth"
-#     torch.save(agent.network.state_dict(), nn_filename)
+nn_filename = "dqnAgent_Trained_Model_" + timestr + ".pth"
+torch.save(global_net.network.state_dict(), nn_filename)
 
 # Save the recorded Scores data
 scores_filename = "dqnAgent_scores_" + timestr + ".csv"
