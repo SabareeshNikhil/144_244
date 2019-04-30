@@ -143,11 +143,14 @@ class Agent():
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+        #self.show_weights()
 
         # ------------------- update target network ------------------- #
         self.soft_update(self.network, self.target_network, self.tau)
 
-
+    def show_weights(self):
+        for param in self.network.parameters():
+            print(param.data.shape)    
     ########################################################
     """
     Soft update model parameters.

@@ -48,5 +48,6 @@ class GlobalNet():
     def receive_upload(self, average_net):
         for global_param, avg_param in zip(self.network.parameters(), average_net.parameters()):
             global_param.data.copy_(avg_param.data)
+            #self.show_weights()
             # global_param.data.copy_(alpha*avg_param.data + (1.0-alpha)*global_param.data)
         

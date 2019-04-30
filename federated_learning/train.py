@@ -21,15 +21,15 @@ def convert_action(a):
     
     return converted_action
 
-num_episodes=6
 epsilon=1.0
 epsilon_min=0.05
 epsilon_decay=0.99
 scores_history = []
-scores_average_window = 10      
+scores_average_window = 20      
 solved_score = 14 
 
-episodes_per_download = 5
+num_e= 1 
+timestr = time.strftime("%Y%m%d-%H%M%S")
 
 # env = UnityEnvironment(file_name="Banana.app")
 env = UnityEnvironment(file_name=None)
@@ -53,96 +53,106 @@ num_agents = len(env_info.agents)
 
 print("NUMAGENTS", num_agents)
 
-# agent = Agent(state_size=state_size, action_size=action_size, dqn_type='DQN', seed=4)
-agent_nets = Agents(state_size=state_size, action_size=action_size, num_agents=num_agents, dqn_type='DQN', seed=4)
 
-global_net = GlobalNet(state_size=state_size, action_size=action_size, dqn_type='DQN', seed=5)
-
-agent_nets.download_global_net(global_net.network)
 # global_net.show_weights()
 
-# loop from num_episodes
-for i_episode in range(1, num_episodes+1):
-    # download global network
-    if i_episode % episodes_per_download == 1:
-        print ("UPLOADING AGENT NETWORKS")
-        average_net = agent_nets.get_average_network()
-        global_net.receive_upload(average_net)
+#loop for different e
 
-        print ("DOWNLOADING GLOBAL NETWORK")
-        agent_nets.download_global_net(global_net.network)
+for i_e in range(0, num_e):
 
-    # reset the unity environment at the beginning of each episode
-    env_info = env.reset(train_mode=True)[brain_name]     
+    scores_history = []
+    episodes_per_download = 5+i_e*15
+    # num_episodes=episodes_per_download*40
+    # episodes_per_download = 20
+    num_episodes=400
 
-    # get initial state of the unity environment 
-    state = env_info.vector_observations
+    agent_nets = Agents(state_size=state_size, action_size=action_size, num_agents=num_agents, dqn_type='DQN', seed=4)
 
-    # set the initial episode scores to zero.
-    scores = np.float32([0] * num_agents)
+    global_net = GlobalNet(state_size=state_size, action_size=action_size, dqn_type='DQN', seed=4)
 
-    while True:
-        # determine epsilon-greedy action from current sate
-        actions = agent_nets.act(state, epsilon)  
+    agent_nets.download_global_net(global_net.network)
 
-        converted_actions = [convert_action(a) for a in actions]
+    # loop from num_episodes
+    for i_episode in range(1, num_episodes+1):
+    #     # # download global network
+    #     if i_episode % episodes_per_download == 1:
+    #         print ("UPLOADING AGENT NETWORKS")
+    #         average_net = agent_nets.get_average_network()
+    #         global_net.receive_upload(average_net)
 
-        # send the actions to the environment and receive resultant environment information
-        env_info = env.step(converted_actions)[brain_name]        
+    #         print ("DOWNLOADING GLOBAL NETWORK")
+    #         agent_nets.download_global_net(global_net.network)
 
-        next_state = env_info.vector_observations   # get the next state
-        rewards = env_info.rewards                   # get the reward
-        dones = env_info.local_done                  # see if episode has finished
+        # reset the unity environment at the beginning of each episode
+        env_info = env.reset(train_mode=True)[brain_name]     
 
-        #Send (S, A, R, S') info to the DQN agents for a neural network update
-        agent_nets.step(state, actions, rewards, next_state, dones)
+        # get initial state of the unity environment 
+        state = env_info.vector_observations
 
-        # set new state to current state for determining next action
-        state = next_state
+        # set the initial episode scores to zero.
+        scores = np.float32([0] * num_agents)
 
-        # Update episode score
-        scores += rewards
+        while True:
+            # determine epsilon-greedy action from current sate
+            actions = agent_nets.act(state, epsilon)  
 
-        # If unity indicates that episode is done, 
-        # then exit episode loop, to begin new episode
-        if all(dones):
-            break
+            converted_actions = [convert_action(a) for a in actions]
 
-    avg_score = sum(scores)/num_agents
-    print ("Scores:", scores, "Average Scores:",sum(scores)/num_agents)
-    scores_history.append(avg_score)
-    print("Episode",i_episode,"Running average:", sum(scores_history[-scores_average_window:])/scores_average_window)
+            # send the actions to the environment and receive resultant environment information
+            env_info = env.step(converted_actions)[brain_name]        
 
-    # # Add episode score to Scores and...
-    # # Calculate mean score over last 100 episodes 
-    # # Mean score is calculated over current episodes until i_episode > 100
-    
-    # average_score = np.mean(scores[i_episode-min(i_episode,scores_average_window):i_episode+1])
+            next_state = env_info.vector_observations   # get the next state
+            rewards = env_info.rewards                   # get the reward
+            dones = env_info.local_done                  # see if episode has finished
 
-    # # Decrease epsilon for epsilon-greedy policy by decay rate
-    # # Use max method to make sure epsilon doesn't decrease below epsilon_min
-    epsilon = max(epsilon_min, epsilon_decay*epsilon)
+            #Send (S, A, R, S') info to the DQN agents for a neural network update
+            agent_nets.step(state, actions, rewards, next_state, dones)
 
-    # # (Over-) Print current average score
-    # print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, average_score), end="")
+            # set new state to current state for determining next action
+            state = next_state
 
-    # # Print average score every scores_average_window episodes
-    # if i_episode % scores_average_window == 0:
-    #     print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, average_score))
-    
-    # # Check to see if the task is solved (i.e,. avearge_score > solved_score). 
-    # # If yes, save the network weights and scores and end training.
-    # if average_score >= solved_score:
+            # Update episode score
+            scores += rewards
+
+            # If unity indicates that episode is done, 
+            # then exit episode loop, to begin new episode
+            if all(dones):
+                break
+
+        avg_score = sum(scores)/num_agents
+        print ("Scores:", scores, "Average Scores:",sum(scores)/num_agents)
+        scores_history.append(scores)
+        print("Episode",i_episode,"Running average:", sum(scores_history[-scores_average_window:])/scores_average_window)
+
+        # # Add episode score to Scores and...
+        # # Calculate mean score over last 100 episodes 
+        # # Mean score is calculated over current episodes until i_episode > 100
+        
+        # average_score = np.mean(scores[i_episode-min(i_episode,scores_average_window):i_episode+1])
+
+        # # Decrease epsilon for epsilon-greedy policy by decay rate
+        # # Use max method to make sure epsilon doesn't decrease below epsilon_min
+        epsilon = max(epsilon_min, epsilon_decay*epsilon)
+
+        # # (Over-) Print current average score
+        # print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, average_score), end="")
+
+        # # Print average score every scores_average_window episodes
+        # if i_episode % scores_average_window == 0:
+        #     print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, average_score))
+        
+        # # Check to see if the task is solved (i.e,. avearge_score > solved_score). 
+        # # If yes, save the network weights and scores and end training.
+        # if average_score >= solved_score:
     #     print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode, average_score))
 
-#     # Save trained neural network weights
-timestr = time.strftime("%Y%m%d-%H%M%S")
-nn_filename = "dqnAgent_Trained_Model_" + timestr + ".pth"
-torch.save(global_net.network.state_dict(), nn_filename)
+    #     # Save trained neural network weights
+    #     nn_filename = "dqnAgent_Trained_Model_" + timestr + ".pth"
+    #     torch.save(agent.network.state_dict(), nn_filename)
 
-# Save the recorded Scores data
-scores_filename = "dqnAgent_scores_" + timestr + ".csv"
-np.savetxt(scores_filename, scores_history, delimiter=",")
+    # Save the recorded Scores data
+    scores_filename = "dqnAgent_scores_" + timestr + "E"+str(episodes_per_download)+".csv"
+    np.savetxt(scores_filename, scores_history, delimiter=",")
 
 
 
