@@ -75,13 +75,13 @@ for i_e in range(0, num_e):
     # loop from num_episodes
     for i_episode in range(1, num_episodes+1):
     #     # # download global network
-    #     if i_episode % episodes_per_download == 1:
-    #         print ("UPLOADING AGENT NETWORKS")
-    #         average_net = agent_nets.get_average_network()
-    #         global_net.receive_upload(average_net)
+        if i_episode % episodes_per_download == 1:
+            print ("UPLOADING AGENT NETWORKS")
+            average_net = agent_nets.get_average_network()
+            global_net.receive_upload(average_net)
 
-    #         print ("DOWNLOADING GLOBAL NETWORK")
-    #         agent_nets.download_global_net(global_net.network)
+            print ("DOWNLOADING GLOBAL NETWORK")
+            agent_nets.download_global_net(global_net.network)
 
         # reset the unity environment at the beginning of each episode
         env_info = env.reset(train_mode=True)[brain_name]     
